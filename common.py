@@ -5,6 +5,9 @@ import sys
 import argparse
 
 def create_parser():
+    '''This creates a set of common command-line options that we will use
+    in all of our examples.'''
+
     p = argparse.ArgumentParser()
 
     p.add_argument('--os-username',

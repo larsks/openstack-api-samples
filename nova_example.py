@@ -6,6 +6,7 @@ import argparse
 
 from novaclient.v1_1 import client as novaclient
 
+# Import code common to all of the examples.
 import common
 import keystone_example
 
@@ -16,13 +17,20 @@ def parse_args():
 def main():
     args = parse_args()
 
-    nc = novaclient.Client(
-        args.os_username,
-        args.os_password,
-        args.os_tenant_id,
-        auth_url=args.os_auth_url,
-        tenant_id=args.os_tenant_id)
+    kc = keystone_example.get_keystone_client(args)
 
+    # We pass username, password, and project_id as None
+    # because we want to use our existing Keystone token rather
+    # than having Nova acquire a new one.
+    nc = novaclient.Client(
+        None,
+        None,
+        None,
+        auth_url=args.os_auth_url,
+        tenant_id=args.os_tenant_id,
+        auth_token=kc.auth_token)
+
+    # Print a list of running servers.
     for server in nc.servers.list():
         print server.id, server.name
         for network_name, network in server.networks.items():
