@@ -27,7 +27,7 @@ def main():
         None,
         None,
         auth_url=args.os_auth_url,
-        tenant_id=args.os_tenant_id,
+        tenant_id=kc.tenant_id,
         auth_token=kc.auth_token)
 
     # Print a list of running servers.
