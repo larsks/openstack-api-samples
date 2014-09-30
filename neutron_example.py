@@ -33,7 +33,13 @@ def parse_args():
 
 def main():
     args = parse_args()
-    kc = keystone_example.get_keystone_client(args)
+    kc = keystone_example.get_keystone_client(
+        os_username=args.os_username,
+        os_password=args.os_password,
+        os_tenant_name=args.os_tenant_name,
+        os_tenant_id=args.os_tenant_id,
+        os_auth_url=args.os_auth_url
+    )
 
     # Find an endpoint for the 'image' service.
     endpoint = kc.service_catalog.url_for(
