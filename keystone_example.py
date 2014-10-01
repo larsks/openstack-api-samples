@@ -22,7 +22,13 @@ def get_keystone_client(os_username=None,
         import keystone_example
         parser = common.create_parser()
         args = parser.parse_args()
-        client = keystone_example.get_keystone_client(args)
+        client = get_keystone_client(
+            os_username=args.os_username,
+            os_password=args.os_password,
+            os_tenant_name=args.os_tenant_name,
+            os_tenant_id=args.os_tenant_id,
+            os_auth_url=args.os_auth_url
+        )
     '''
 
     return ksclient.Client(username=os_username, 
