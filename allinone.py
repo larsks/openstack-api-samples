@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 
+import keystoneclient.auth as keystone_auth
 import keystoneclient.auth.identity as keystone_identity
 import keystoneclient.session as keystone_session
 import keystoneclient.client as keystone_client
@@ -60,7 +61,8 @@ def get_keystone_client(sess, identity_api_version=IDENTITY_API_VERSION):
                                 session=sess,
                                 project_id=sess.get_project_id(),
                                 tenant_id=sess.get_project_id(),
-                                auth_url=sess.auth.auth_url)
+                                auth_url=sess.get_endpoint(
+                                    interface=keystone_auth.AUTH_INTERFACE))
 
     kc.authenticate(token=sess.get_token())
 
@@ -84,8 +86,24 @@ def get_glance_client(sess):
 def get_cinder_client(sess):
     return cinder_client.Client('2', session=sess)
 
-sess = get_session()
-kc = get_keystone_client(sess)
-nc = get_nova_client(sess)
-gc = get_glance_client(sess)
-cc = get_cinder_client(sess)
+
+def get_all_clients(sess=None):
+    if not sess:
+        sess = get_session()
+
+    kc = get_keystone_client(sess)
+    nc = get_nova_client(sess)
+    gc = get_glance_client(sess)
+    cc = get_cinder_client(sess)
+
+    return {
+        'session': sess,
+        'keystone': kc,
+        'nova': nc,
+        'glance': gc,
+        'cinder': cc,
+    }
+
+if __name__ == '__main__':
+    sess = get_session()
+    clients = get_all_clients(sess)
