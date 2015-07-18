@@ -12,24 +12,41 @@ import novaclient.client as nova_client
 import glanceclient.client as glance_client
 import cinderclient.client as cinder_client
 import neutronclient.neutron.client as neutron_client
+import heatclient.client as heat_client
 
 LOG = logging.getLogger(__name__)
 
 logging.basicConfig(level='INFO')
 
-IDENTITY_API_VERSION = os.environ.get(
-    'OS_IDENTITY_API_VERSION', '3')
-
 class OpenStack(object):
     def __init__(self,
                  sess=None,
                  identity_api_version=None,
+                 username=None,
+                 password=None,
+                 tenant_name=None,
+                 tenant_id=None,
+                 user_domain_id=None,
+                 project_domain_id=None,
                  auth_url=None):
 
+        self.username = username or os.environ.get('OS_USERNAME')
+        self.password = password or os.environ.get('OS_PASSWORD')
+        self.tenant_name = tenant_name or os.environ.get('OS_TENANT_NAME')
+        self.tenant_id = tenant_id or os.environ.get('OS_TENANT_ID')
+        self.user_domain_id = (
+            user_domain_id or os.environ.get('OS_USER_DOMAIN_ID',
+                                             'default'))
+        self.project_domain_id = (
+            project_domain_id or os.environ.get('OS_PROJECT_DOMAIN_ID',
+                                                'default'))
         self.auth_url = (
-            auth_url if auth_url
-            else os.environ.get('OS_AUTH_URL'))
-        self.identity_api_version = identity_api_version
+            auth_url if auth_url else os.environ.get('OS_AUTH_URL'))
+
+        self.identity_api_version = (
+            identity_api_version if identity_api_version
+            else os.environ.get('OS_IDENTITY_API_VERSION'))
+
         self.sess = sess or self.get_session()
 
     def get_session(self):
@@ -56,21 +73,20 @@ class OpenStack(object):
     def get_keystone_v2_auth(self):
         return keystone_identity.v2.Password(
             auth_url=self.auth_url,
-            username=os.environ['OS_USERNAME'],
-            password=os.environ['OS_PASSWORD'],
-            tenant_name=os.environ['OS_TENANT_NAME'])
+            username=self.username,
+            password=self.password,
+            tenant_name=self.tenant_name,
+            tenant_id=self.tenant_id)
 
     def get_keystone_v3_auth(self):
         return keystone_identity.v3.Password(
             auth_url=self.auth_url,
-            username=os.environ['OS_USERNAME'],
-            password=os.environ['OS_PASSWORD'],
-            user_domain_id=os.environ.get('OS_USER_DOMAIN_ID',
-                                          'default'),
-            project_name=os.environ['OS_TENANT_NAME'],
-            project_domain_id=os.environ.get('OS_PROJECT_DOMAIN_ID',
-                                             'default'),
-        )
+            username=self.username,
+            password=self.password,
+            user_domain_id=self.user_domain_id,
+            project_name=self.tenant_name,
+            project_id=self.tenant_id,
+            project_domain_id=self.project_domain_id)
 
     def get_keystone_client(self):
         kc = keystone_client.Client(
