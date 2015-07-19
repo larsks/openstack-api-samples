@@ -117,6 +117,21 @@ class OpenStack(object):
     def get_neutron_client(self):
         return neutron_client.Client('2.0', session=self.sess)
 
+    def get_heat_client(self):
+        # XXX (Lars Kellogg-Stedman): Why is it necessary to specify
+        # service_type here? Heat should already know it is the
+        # orchestration service.
+        return heat_client.Client('1',
+                                  service_type='orchestration',
+                                  session=self.sess,
+                                  endpoint=self.keystone.service_catalog.url_for(
+                                      service_type='orchestration',
+                                      endpoint_type='publicURL'))
+
+    @property
+    def token(self):
+        return self.sess.get_token()
+
     @property
     def keystone(self):
         try:
@@ -156,6 +171,14 @@ class OpenStack(object):
         except AttributeError:
             self._neutron = self.get_neutron_client()
             return self._neutron
+
+    @property
+    def heat(self):
+        try:
+            return self._heat
+        except AttributeError:
+            self._heat = self.get_heat_client()
+            return self._heat
 
 
 if __name__ == '__main__':
