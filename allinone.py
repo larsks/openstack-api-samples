@@ -2,7 +2,6 @@
 
 import logging
 import os
-import sys
 
 import keystoneclient.auth as keystone_auth
 import keystoneclient.auth.identity as keystone_identity
@@ -17,6 +16,7 @@ import heatclient.client as heat_client
 LOG = logging.getLogger(__name__)
 
 logging.basicConfig(level='INFO')
+
 
 class OpenStack(object):
     def __init__(self,
@@ -121,12 +121,12 @@ class OpenStack(object):
         # XXX (Lars Kellogg-Stedman): Why is it necessary to specify
         # service_type here? Heat should already know it is the
         # orchestration service.
-        return heat_client.Client('1',
-                                  service_type='orchestration',
-                                  session=self.sess,
-                                  endpoint=self.keystone.service_catalog.url_for(
-                                      service_type='orchestration',
-                                      endpoint_type='publicURL'))
+        return heat_client.Client(
+            '1', service_type='orchestration',
+            session=self.sess,
+            endpoint=self.keystone.service_catalog.url_for(
+                service_type='orchestration',
+                endpoint_type='publicURL'))
 
     @property
     def token(self):
