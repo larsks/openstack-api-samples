@@ -15,8 +15,6 @@ import heatclient.client as heat_client
 
 LOG = logging.getLogger(__name__)
 
-logging.basicConfig(level='INFO')
-
 
 class OpenStack(object):
     def __init__(self,
@@ -182,4 +180,5 @@ class OpenStack(object):
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level='DEBUG')
     clients = OpenStack()
